@@ -35,6 +35,8 @@ namespace saycle.server.Models
 
         public virtual ICollection<Cycle> Cycles { get; set; }
 
+        public virtual ICollection<Rating> Ratings { get; set; }
+
         public virtual ICollection<Visit> Visits { get; set; }
 
         public virtual ICollection<Login> Logins { get; set; }

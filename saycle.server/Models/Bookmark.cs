@@ -11,10 +11,10 @@ namespace saycle.server.Models
 
         public DateTime? CreationTime { get; set; }
 
-        public Guid CycleID { get; set; }
+        public Guid UserID { get; set; }
 
-        [ForeignKey(nameof(CycleID))]
-        public Cycle Cycle { get; set; }
+        [ForeignKey(nameof(UserID))]
+        public User User { get; set; }
 
         public Guid StoryID { get; set; }
 

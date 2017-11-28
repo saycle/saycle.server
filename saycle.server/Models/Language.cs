@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace saycle.server.Models
@@ -6,6 +7,8 @@ namespace saycle.server.Models
     public class Language
     {
         [Key]
+        public Guid LanguageID { get; set; }
+
         public string Code { get; set; }
 
         [Required]
