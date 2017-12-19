@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using saycle.server.Models;
 
 namespace saycle.server.Controllers
 {
@@ -32,10 +33,11 @@ namespace saycle.server.Controllers
         /// <summary>
         /// Does absolutly nothing.
         /// </summary>
-        /// <param name="value">Value to do nothing with</param>
+        /// <param name="value"><see cref="DemoObject"/></param>
         [HttpPost]
-        public void Post([FromBody]string value)
+        public JsonResult Post([FromBody]DemoObject value)
         {
+            return Json(value);
         }
 
         /// <summary>

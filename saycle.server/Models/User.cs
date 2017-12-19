@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace saycle.server.Models
 {
     public class User
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid UserID { get; set; }
 
@@ -27,11 +29,15 @@ namespace saycle.server.Models
 
         public DateTime? CreationTime { get; set; }
 
-        public virtual ICollection<Language> Languages { get; set; }
+        public bool Verified { get; set; }
+
+        public bool Deleted { get; set; }
+
+        public virtual ICollection<UserLanguage> Languages { get; set; }
 
         public virtual ICollection<Story> CreatedStories { get; set; }
 
-        public virtual ICollection<Story> Favorites { get; set; }
+        public virtual ICollection<Favorite> Favorites { get; set; }
 
         public virtual ICollection<Cycle> Cycles { get; set; }
 

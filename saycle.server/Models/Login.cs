@@ -6,6 +6,7 @@ namespace saycle.server.Models
 {
     public class Login
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid LoginID { get; set; }
 

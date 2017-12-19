@@ -1,10 +1,12 @@
 ﻿using System.IO;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
-
+using saycle.server.Data;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace saycle.server
@@ -34,6 +36,7 @@ namespace saycle.server
         {
             services.AddMvc();
 
+            // Configure Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info
@@ -49,14 +52,24 @@ namespace saycle.server
                 var xmlPath = Path.Combine(basePath, $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml");
                 c.IncludeXmlComments(xmlPath);
             });
+
+            // Configure Entity-Framework
+            services.AddDbContext<SaycleContext>(options => 
+            options.UseSqlServer(Configuration.GetConnectionString("SaycleDatabase")));
+            services.AddTransient<LanguagesInitializer>();
+            services.AddTransient<LanguagesInitializer>();
+
+
+            // Configure AutoMapper
+            services.AddAutoMapper();
         }
-        
+
         /// <summary>
         /// Called by runtime and used to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Application request pipeline</param>
         /// <param name="environment">Information about environment</param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment environment)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment environment, LanguagesInitializer languagesInitializer)
         {
             if (environment.IsDevelopment())
             {
@@ -69,6 +82,8 @@ namespace saycle.server
             });
 
             app.UseMvc();
+            languagesInitializer.Seed().Wait();
+
         }
     }
 }

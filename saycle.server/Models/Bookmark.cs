@@ -6,6 +6,7 @@ namespace saycle.server.Models
 {
     public class Bookmark
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid BookmarkID { get; set; }
 

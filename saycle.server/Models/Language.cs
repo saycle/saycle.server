@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace saycle.server.Models
 {
     public class Language
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid LanguageID { get; set; }
 
@@ -16,6 +18,6 @@ namespace saycle.server.Models
 
         public virtual ICollection<Story> Stories { get; set; }
 
-        public virtual ICollection<User> Users { get; set; }
+        public virtual ICollection<UserLanguage> Users { get; set; }
     }
 }

@@ -8,12 +8,15 @@ namespace saycle.server.Models
 {
     public class Cycle
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid CycleID { get; set; }
 
         public string Text { get; set; }
 
         public DateTime? CreationTime { get; set; }
+
+        public bool Deleted { get; set; }
 
         public Guid UserID { get; set; }
 
@@ -28,9 +31,9 @@ namespace saycle.server.Models
         public virtual ICollection<StoryRating> Ratings { get; set; }
 
         [NotMapped]
-        public double Rating => Ratings.Average(r => r.Value);
+        public double? Rating => Ratings?.Average(r => r.Value);
 
         [NotMapped]
-        public IEnumerable<User> Raters => Ratings.Select(r => r.User);
+        public IEnumerable<User> Raters => Ratings?.Select(r => r.User);
     }
 }

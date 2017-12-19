@@ -9,6 +9,7 @@ namespace saycle.server.Models
 {
     public class Story
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid StoryID { get; set; }
 
@@ -19,12 +20,14 @@ namespace saycle.server.Models
 
         public DateTime? CreationTime { get; set; }
 
+        public bool Deleted { get; set; }
+
         public Guid CreatorID { get; set; }
 
         [ForeignKey(nameof(CreatorID))]
         public User Creator { get; set; }
 
-        public Language LanguageID { get; set; }
+        public Guid LanguageID { get; set; }
 
         [ForeignKey(nameof(LanguageID))]
         public Language Language { get; set; }
@@ -36,18 +39,18 @@ namespace saycle.server.Models
         public virtual ICollection<Bookmark> Bookmarks { get; set; }
 
         [NotMapped]
-        public string Text => string.Join(" ", Cycles.OrderBy(c => c.CreationTime).Select(c => c.Text));
+        public string Text => string.Join(" ", Cycles?.OrderBy(c => c.CreationTime).Select(c => c.Text ?? string.Empty) ?? new[] {""} );
 
         [NotMapped]
-        public IEnumerable<User> Authors => Cycles.Select(c => c.Author);
+        public IEnumerable<User> Authors => Cycles?.Select(c => c.Author);
 
         [NotMapped]
-        public double Rating => Ratings.Average(r => r.Value);
+        public double? Rating => Ratings?.Average(r => r.Value);
 
         [NotMapped]
-        public IEnumerable<User> Raters => Ratings.Select(r => r.User);
+        public IEnumerable<User> Raters => Ratings?.Select(r => r.User);
 
         [NotMapped]
-        public IEnumerable<User> Bookmarkers => Bookmarks.Select(b => b.User);
+        public IEnumerable<User> Bookmarkers => Bookmarks?.Select(b => b.User);
     }
 }
