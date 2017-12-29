@@ -1,19 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace saycle.server.ViewModels.User
 {
-    public class CreateUserViewModel
+    public class LoginUserViewModel
     {
         public string UserName { get; set; }
 
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
-        
         public string Email { get; set; }
 
         public string Password { get; set; }
 
-        public DateTime? Birthday { get; set; }
+        public bool Remember { get; set; }
     }
 }

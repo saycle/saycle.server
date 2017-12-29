@@ -9,7 +9,7 @@ namespace saycle.server.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid LanguageID { get; set; }
+        public Guid Id { get; set; }
 
         public string Code { get; set; }
 

@@ -58,5 +58,21 @@ namespace saycle.server.Controllers
         public void Delete(int id)
         {
         }
+
+        /// <summary>
+        /// Dummy object for <see cref="DemoController"/>.
+        /// </summary>
+        public class DemoObject
+        {
+            /// <summary>
+            /// Some numeric integer number.
+            /// </summary>
+            public int Number { get; set; }
+            
+            /// <summary>
+            /// Some text value.
+            /// </summary>
+            public string Value { get; set; }
+        }
     }
 }

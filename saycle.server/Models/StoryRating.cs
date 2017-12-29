@@ -5,9 +5,9 @@ namespace saycle.server.Models
 {
     public class StoryRating : Rating
     {
-        public Guid StoryID { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey(nameof(StoryID))]
+        [ForeignKey(nameof(StoryId))]
         public Story Story { get; set; }
     }
 }

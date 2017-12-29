@@ -11,7 +11,7 @@ namespace saycle.server.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid StoryID { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public string Title { get; set; }
@@ -22,14 +22,14 @@ namespace saycle.server.Models
 
         public bool Deleted { get; set; }
 
-        public Guid CreatorID { get; set; }
+        public Guid CreatorId { get; set; }
 
-        [ForeignKey(nameof(CreatorID))]
+        [ForeignKey(nameof(CreatorId))]
         public User Creator { get; set; }
 
-        public Guid LanguageID { get; set; }
+        public Guid LanguageId { get; set; }
 
-        [ForeignKey(nameof(LanguageID))]
+        [ForeignKey(nameof(LanguageId))]
         public Language Language { get; set; }
 
         public virtual ICollection<Cycle> Cycles { get; set; }

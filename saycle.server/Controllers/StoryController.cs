@@ -32,14 +32,14 @@ namespace saycle.server.Controllers
         }
 
         /// <summary>
-        /// Returns the <see cref="Story"/> entity with the corresponding <see cref="Story.StoryID"/>.
+        /// Returns the <see cref="Story"/> entity with the corresponding <see cref="Story.Id"/>.
         /// </summary>
         /// <param name="id">Identitfier of the user</param>
         /// <returns>Story entity as JSON</returns>
         [HttpGet("{id}")]
         public JsonResult Get(Guid id)
         {
-            return Json(Context.Stories.FirstOrDefault(s => Equals(s.StoryID, id)));
+            return Json(Context.Stories.FirstOrDefault(s => Equals(s.Id, id)));
         }
 
         /// <summary>

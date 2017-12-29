@@ -7,15 +7,15 @@ namespace saycle.server.Models
     public class UserLanguage
     {
         [Key]
-        public Guid UserID { get; set; }
+        public Guid UserId { get; set; }
 
-        [ForeignKey(nameof(UserID))]
+        [ForeignKey(nameof(UserId))]
         public User User { get; set; }
         
         [Key]
-        public Guid LanguageID { get; set; }
+        public Guid LanguageId { get; set; }
 
-        [ForeignKey(nameof(LanguageID))]
+        [ForeignKey(nameof(LanguageId))]
         public Language Language { get; set; }
     }
 }

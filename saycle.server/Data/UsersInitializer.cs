@@ -1,17 +1,21 @@
 ﻿using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+
 using saycle.server.Models;
+using saycle.server.Models.Enums;
 
 namespace saycle.server.Data
 {
     public class UsersInitializer : BaseInitializer
     {
-        public UsersInitializer(SaycleContext context) : base(context)
+        private UserManager<User> UserManager { get; }
+
+        public UsersInitializer(SaycleContext context, UserManager<User> userManager) : base(context)
         {
-            
+            UserManager = userManager;
         }
 
-        public override async Task Seed()
+        public override void Seed()
         {
             if (Context.Users.Any())
             {
@@ -19,11 +23,13 @@ namespace saycle.server.Data
             }
             var adminUser = new User()
             {
-                UserName = "Administrator",
+                UserName = "admin",
                 Email = "admin@saycle.xyz",
-                
+                EmailConfirmed = true,
+                Verified = true
             };
-            await Context.SaveChangesAsync();
+            UserManager.CreateAsync(adminUser, "QfJGkCFFEp9^pxM$RYX!x6").Wait();
+            UserManager.AddToRoleAsync(adminUser, UserRoles.Administrator).Wait();
         }
     }
 }

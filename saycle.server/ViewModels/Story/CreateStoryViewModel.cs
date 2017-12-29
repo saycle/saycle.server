@@ -11,8 +11,8 @@ namespace saycle.server.ViewModels.Story
 
         public StoryMode? Mode { get; set; }
 
-        public Guid CreatorID { get; set; }
+        public Guid CreatorId { get; set; }
 
-        public Guid LanguageID { get; set; }
+        public Guid LanguageId { get; set; }
     }
 }

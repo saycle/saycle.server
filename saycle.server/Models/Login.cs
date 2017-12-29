@@ -8,7 +8,7 @@ namespace saycle.server.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid LoginID { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public DateTime Timestamp { get; set; }
@@ -21,9 +21,9 @@ namespace saycle.server.Models
 
         public string Region { get; set; }
 
-        public Guid UserID { get; set; }
+        public Guid UserId { get; set; }
 
-        [ForeignKey(nameof(UserID))]
+        [ForeignKey(nameof(UserId))]
         public User User { get; set; }
     }
 }

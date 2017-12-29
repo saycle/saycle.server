@@ -8,18 +8,18 @@ namespace saycle.server.Models
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid BookmarkID { get; set; }
+        public Guid Id { get; set; }
 
         public DateTime? CreationTime { get; set; }
 
-        public Guid UserID { get; set; }
+        public Guid UserId { get; set; }
 
-        [ForeignKey(nameof(UserID))]
+        [ForeignKey(nameof(UserId))]
         public User User { get; set; }
 
-        public Guid StoryID { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey(nameof(StoryID))]
+        [ForeignKey(nameof(StoryId))]
         public Story Story { get; set; }
     }
 }

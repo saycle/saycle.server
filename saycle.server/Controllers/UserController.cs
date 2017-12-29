@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Net;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+
 using saycle.server.Data;
 using saycle.server.Models;
-using saycle.server.ViewModels.Story;
 using saycle.server.ViewModels.User;
 
 namespace saycle.server.Controllers
@@ -15,11 +21,18 @@ namespace saycle.server.Controllers
     [Route("api/[controller]")]
     public class UserController : BaseController
     {
+        private UserManager<User> UserManager { get; }
+
+        private SignInManager<User> SignInManager { get; }
+
         /// <summary>
         /// Initialize <see cref="User"/> controller.
         /// </summary>
-        public UserController(SaycleContext context, IMapper mapper) : base(context, mapper)
+        public UserController(SaycleContext context, IMapper mapper, UserManager<User> userManager,
+            SignInManager<User> signInManager) : base(context, mapper)
         {
+            UserManager = userManager;
+            SignInManager = signInManager;
         }
 
         /// <summary>
@@ -33,18 +46,7 @@ namespace saycle.server.Controllers
         }
 
         /// <summary>
-        /// Returns the <see cref="User"/> entity with the corresponding <see cref="User.UserID"/>.
-        /// </summary>
-        /// <param name="id">Identitfier of the user</param>
-        /// <returns>User entity as JSON</returns>
-        [HttpGet("{id}")]
-        public JsonResult Get(Guid id)
-        {
-            return Json(Context.Users.FirstOrDefault(u => Equals(u.UserID, id)));
-        }
-
-        /// <summary>
-        /// Returns the <see cref="User"/> entity with the corresponding <see cref="User.UserName"/>.
+        /// Returns the <see cref="User"/> entity with the corresponding <see cref="IdentityUser{Guid}.UserName"/>.
         /// </summary>
         /// <param name="username">Username</param>
         /// <returns>User entity as JSON</returns>
@@ -57,15 +59,48 @@ namespace saycle.server.Controllers
         /// <summary>
         /// Creates a new <see cref="User"/>.
         /// </summary>
-        /// <param name="viewModel">ViewModel representation for creating a new Story</param>
-        [HttpPost]
-        public JsonResult Post([FromBody] CreateUserViewModel viewModel)
+        /// <param name="viewModel">ViewModel representation for registring a new User</param>
+        [HttpPost(nameof(Register))]
+        public async Task<HttpResponseMessage> Register([FromBody] RegisterUserViewModel viewModel)
         {
-            var user = Mapper.Map<CreateUserViewModel, User>(viewModel);
+            var user = Mapper.Map<RegisterUserViewModel, User>(viewModel);
             user.CreationTime = DateTime.Now;
-            user = Context.Users.Add(user).Entity;
-            Context.SaveChanges();
-            return Json(user);
+            var result = await UserManager.CreateAsync(user, viewModel.Password);
+            if (result.Succeeded)
+            {
+                await SignInManager.SignInAsync(user, false);
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+        }
+
+        /// <summary>
+        /// Login an existing <see cref="User"/>.
+        /// </summary>
+        /// <param name="viewModel">ViewModel representation with login information</param>
+        [HttpPost(nameof(Login))]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> Login(LoginUserViewModel viewModel)
+        {
+            var result = await SignInManager
+                .PasswordSignInAsync(viewModel.Password, viewModel.Password, viewModel.Remember, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                return new HttpResponseMessage(HttpStatusCode.OK);
+            }
+            return new HttpResponseMessage(HttpStatusCode.Forbidden);
+        }
+
+        /// <summary>
+        /// Logs the current user out.
+        /// </summary>
+        [HttpPost(nameof(Logout))]
+        [ValidateAntiForgeryToken]
+        public async Task<HttpResponseMessage> Logout()
+        {
+            await SignInManager.SignOutAsync();
+            return new HttpResponseMessage(HttpStatusCode.OK);
         }
     }
 }

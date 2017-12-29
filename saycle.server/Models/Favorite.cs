@@ -7,15 +7,15 @@ namespace saycle.server.Models
     public class Favorite
     {
         [Key]
-        public Guid UserID { get; set; }
+        public Guid UserId { get; set; }
 
-        [ForeignKey(nameof(UserID))]
+        [ForeignKey(nameof(UserId))]
         public User User { get; set; }
 
         [Key]
-        public Guid StoryID { get; set; }
+        public Guid StoryId { get; set; }
 
-        [ForeignKey(nameof(StoryID))]
+        [ForeignKey(nameof(StoryId))]
         public Story Story { get; set; }
     }
 }

@@ -15,7 +15,7 @@ namespace saycle.server.Handlers
         /// </summary>
         public MappingProfile()
         {
-            CreateMap<CreateUserViewModel, User>();
+            CreateMap<RegisterUserViewModel, User>();
             CreateMap<CreateStoryViewModel, Story>();
         }
     }

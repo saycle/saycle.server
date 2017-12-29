@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace saycle.server.Data
 {
@@ -14,6 +11,6 @@ namespace saycle.server.Data
             Context = context;
         }
 
-        public abstract Task Seed();
+        public abstract void Seed();
     }
 }

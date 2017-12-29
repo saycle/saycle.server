@@ -5,9 +5,9 @@ namespace saycle.server.Models
 {
     public class CycleRating : Rating
     {
-        public Guid CycleID { get; set; }
+        public Guid CycleId { get; set; }
 
-        [ForeignKey(nameof(CycleID))]
+        [ForeignKey(nameof(CycleId))]
         public Cycle Cycle { get; set; }
     }
 }

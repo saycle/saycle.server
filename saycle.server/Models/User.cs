@@ -1,29 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace saycle.server.Models
 {
-    public class User
+    public class User : IdentityUser<Guid>
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
-        public Guid UserID { get; set; }
+        public User() { }
 
-        [Required]
-        public string UserName { get; set; }
+        public User(string userName) : base(userName) { }
 
         public string FirstName { get; set; }
 
         public string LastName { get; set; }
-
-        [Required]
-        public string Email { get; set; }
-
-        public string Password { get; set; }
-
-        public string Salt { get; set; }
 
         public DateTime? Birthday { get; set; }
 
@@ -46,5 +35,6 @@ namespace saycle.server.Models
         public virtual ICollection<Visit> Visits { get; set; }
 
         public virtual ICollection<Login> Logins { get; set; }
+
     }
 }

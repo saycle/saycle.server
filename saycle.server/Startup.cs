@@ -1,13 +1,19 @@
-﻿using System.IO;
-using AutoMapper;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
-using saycle.server.Data;
+
+using AutoMapper;
 using Swashbuckle.AspNetCore.Swagger;
+
+using saycle.server.Data;
+using saycle.server.Models;
+using ConfigurationProvider = saycle.server.Handlers.ConfigurationProvider;
 
 namespace saycle.server
 {
@@ -22,12 +28,13 @@ namespace saycle.server
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            ConfigurationProvider.Initialize(configuration);
         }
         
         /// <summary>
         /// Application configuration values.
         /// </summary>
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
         
         /// <summary>
         /// Called by runtime and used to add services to the container.
@@ -36,40 +43,91 @@ namespace saycle.server
         {
             services.AddMvc();
 
-            // Configure Swagger
+            ConfigureSwagger(services);
+            ConfigureEF(services);
+            ConfigureIdentity(services);
+            // Configure AutoMapper
+            services.AddAutoMapper();
+        }
+
+        /// <summary>
+        /// Configure swagger as API framework.
+        /// </summary>
+        private void ConfigureSwagger(IServiceCollection services)
+        {
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info
+                c.SwaggerDoc(ConfigurationProvider.Version, new Info
                 {
-                    Version = "v1",
-                    Title = "saycle.API",
-                    Description = "Public API for saycle.xyz",
-                    TermsOfService = "None",
-                    Contact = new Contact() { Email = "info@saycle.xyz", Url = "https://saycle.xyz" }
+                    Version = ConfigurationProvider.Version,
+                    Title = $"{ConfigurationProvider.ApplicationName} [{ConfigurationProvider.Environment}]",
+                    Description = $"Public API for saycle.xyz using the {ConfigurationProvider.Environment}-environment.",
+                    TermsOfService = ConfigurationProvider.Terms,
+                    Contact = new Contact() { Email = ConfigurationProvider.Contact, Url = ConfigurationProvider.Url }
                 });
                 // Set the comments path for the Swagger JSON and UI.
                 var basePath = PlatformServices.Default.Application.ApplicationBasePath;
                 var xmlPath = Path.Combine(basePath, $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml");
                 c.IncludeXmlComments(xmlPath);
             });
+        }
 
-            // Configure Entity-Framework
-            services.AddDbContext<SaycleContext>(options => 
-            options.UseSqlServer(Configuration.GetConnectionString("SaycleDatabase")));
+        /// <summary>
+        /// Configure Entity Framework.
+        /// </summary>
+        private void ConfigureEF(IServiceCollection services)
+        {
+            services.AddDbContext<SaycleContext>(options =>
+                options.UseSqlServer(ConfigurationProvider.ConnectionString));
+            services.AddTransient<RolesInitializer>();
             services.AddTransient<LanguagesInitializer>();
-            services.AddTransient<LanguagesInitializer>();
+            services.AddTransient<UsersInitializer>();
+        }
 
+        /// <summary>
+        /// Configure Identity Service.
+        /// </summary>
+        private void ConfigureIdentity(IServiceCollection services)
+        {
+            services.AddIdentity<User, Role>()
+                .AddEntityFrameworkStores<SaycleContext>()
+                .AddDefaultTokenProviders();
 
-            // Configure AutoMapper
-            services.AddAutoMapper();
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequiredLength = 8;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireLowercase = false;
+                options.Password.RequiredUniqueChars = 6;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+                options.Lockout.MaxFailedAccessAttempts = 10;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.RequireUniqueEmail = true;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.Cookie.Expiration = TimeSpan.FromDays(150);
+                options.LoginPath = "/User/Login";
+                options.LogoutPath = "/User/Logout";
+                options.AccessDeniedPath = "/User/AccessDenied";
+                options.SlidingExpiration = true;
+            });
         }
 
         /// <summary>
         /// Called by runtime and used to configure the HTTP request pipeline.
         /// </summary>
-        /// <param name="app">Application request pipeline</param>
-        /// <param name="environment">Information about environment</param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment environment, LanguagesInitializer languagesInitializer)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment environment, SaycleContext context, RolesInitializer rolesInitializer, LanguagesInitializer languagesInitializer, UsersInitializer userInitializer)
         {
             if (environment.IsDevelopment())
             {
@@ -78,12 +136,21 @@ namespace saycle.server
             app.UseSwagger();
             app.UseSwaggerUI(o =>
             {
-                o.SwaggerEndpoint("/swagger/v1/swagger.json", "saycle.API v1");
+                o.SwaggerEndpoint($"/swagger/{ConfigurationProvider.Version}/swagger.json", $"{ConfigurationProvider.ApplicationName} {ConfigurationProvider.Version}");
             });
-
+            app.UseAuthentication();
             app.UseMvc();
-            languagesInitializer.Seed().Wait();
+            InitializeData(context, rolesInitializer, languagesInitializer, userInitializer);
+        }
 
+        private static void InitializeData(SaycleContext context, params BaseInitializer[] initializers)
+        {
+            context.Database.EnsureCreated();
+            context.Database.Migrate();
+            foreach (var initializer in initializers)
+            {
+                initializer.Seed();
+            }
         }
     }
 }
